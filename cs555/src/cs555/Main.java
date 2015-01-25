@@ -5,7 +5,12 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import marvin.gui.MarvinImagePanel;
+import marvin.image.MarvinImage;
+import marvin.io.MarvinImageIO;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -41,10 +46,11 @@ public class Main extends JFrame
 	/** File chooser for the Browse button */
 	private JFileChooser fc;
 	
+	/** MarvinImage Holder! */
+	private MarvinImage myImage, backupImage;
 	
 	/** 
-	 * Constructor: Creates the main tool bar for 
-	 * imaging assignment 1. 
+	 * Constructor: Creates the main tool bar for imaging assignment 1. 
 	 */
 	public Main() 
 	{
@@ -96,7 +102,7 @@ public class Main extends JFrame
 		
 		
 		/* Main Window Setup */
-		setTitle("CS 555 - Image Processing Assignment 1");
+		setTitle("CS 555 - Assignment 1");
 		setSize(WIDTH, HEIGHT);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -119,13 +125,34 @@ public class Main extends JFrame
 	{
 		public void actionPerformed(ActionEvent arg0) 
 		{
-			JFrame displayInputImage = new JFrame();
+			/* Create a new window */
+			JFrame displayInputImage = new JFrame("CS 555 - Assignment 1 - Input Image");
 			
+			/* Create a new image panel */
+			MarvinImagePanel imagePanel = new MarvinImagePanel();
 			
+			/* Add image panel into the window */
+			displayInputImage.add(imagePanel);
 			
+			/* Load image to 'myImage' and add to image panel */
+			loadImage();
+			imagePanel.setImage(myImage);
 			
+			/* Retrieve image width and height for new window size */
+			int imageWidth = myImage.getWidth();
+			int imageHeight = myImage.getHeight();
+			
+			/* Input Image Window Setup */
+			displayInputImage.setSize(imageWidth, imageHeight);
 			displayInputImage.setVisible(true);
 			setDefaultCloseOperation(EXIT_ON_CLOSE);
+		}
+		
+		private void loadImage()
+		{
+			myImage = MarvinImageIO.loadImage(file.getAbsolutePath());
+			System.out.println(file.getAbsolutePath());
+	        backupImage = myImage.clone(); 
 		}
 	}
 	
