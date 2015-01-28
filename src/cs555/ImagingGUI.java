@@ -55,10 +55,16 @@ public class ImagingGUI extends JFrame {
 	/* Buffered Images */
 	private BufferedImage myImage, backupImage;
 	
+	/* Image Processor */
+	private ImageProcessor ip;
+	
 	/** 
 	 * Creates the main toolbar for imaging assignment 1. 
 	 */
 	public ImagingGUI() {
+		
+		/* Create a new image processor object */
+		ip = new ImageProcessor();
 		
 		/* Browse button and functionality */
 		browseB = new JButton("Browse");
@@ -80,8 +86,11 @@ public class ImagingGUI extends JFrame {
 		fc.setFileFilter(filter);
 		
 		/* Combo box set-up */
-		String[] processLabels = { "Grayscale", "Option 2", "Option 3",
-				"Option 4", "Option 5" };
+		String[] processLabels = { "0. Subsample and Replication, from 640 x 480",
+				"1. Subsample and Replication, from 80 x 60", 
+				"2. Subsample and Nearest Neighbor, from 640 x 480",
+				"3. Subsample and Nearest Neighbor, from 80 x 60", 
+				"Option 5" };
 		processList = new JComboBox(processLabels);
 		processList.setSelectedIndex(0);
 		
@@ -124,9 +133,13 @@ public class ImagingGUI extends JFrame {
 				/* Load the image, ready for use with other methods. */
 				myImage = loadImage(file);
 				
+				/* Backup Image */
+				backupImage = myImage;
+				
 			}
 		}
 		
+		/* File IO for the image */
 		private BufferedImage loadImage(File file) {
 			BufferedImage img = null;
 			try {
@@ -136,18 +149,16 @@ public class ImagingGUI extends JFrame {
 			}
 			return img;
 		}
-		
 	}
 	
 	/* DisplayButtonHandler pops the input image into a new window */
 	public class DisplayButtonHandler implements ActionListener {
 		
 		public void actionPerformed(ActionEvent arg0) {
-			buildWindow();
+			buildWindowFromFilePath();
 		}
 		
-		private void buildWindow() {
-			
+		private void buildWindowFromFilePath() {
 			/* Create a new window */
 			JFrame displayInputImage = new JFrame("Input");
 			
@@ -159,16 +170,12 @@ public class ImagingGUI extends JFrame {
 			
 			/* Add icon to image panel as a JLabel */
 			imagePanel.add(new JLabel(inputImage));
+		
 			
 			displayInputImage.add(imagePanel);
 			displayInputImage.pack();
 			
-			/* Retrieve image width and height for new window size */
-			int imageWidth = myImage.getWidth();
-			int imageHeight = myImage.getHeight();
-			
 			/* Input Image Window Setup */
-			displayInputImage.setSize(imageWidth, imageHeight);
 			displayInputImage.setVisible(true);
 			setDefaultCloseOperation(EXIT_ON_CLOSE);
 			
@@ -176,90 +183,25 @@ public class ImagingGUI extends JFrame {
 		
 	}
 	
+	/* Go button processes the image and displays the output. */
 	public class GoButtonHandler implements ActionListener {
+		
 		public void actionPerformed(ActionEvent arg0) {
+			
 			int process = processList.getSelectedIndex();
-			if(process == 0) {
-				subsampleAndReplication();
-				System.out.println("backup Image: " + backupImage.getWidth() + "x" + backupImage.getHeight());
-				//createOutputWindow(backupImage);
+			BufferedImage result = myImage;
+			
+			// subsample and replication for both sizes
+			if(process == 0 || process == 1) { 
+				result = ip.subsampleAndReplication(myImage, process);
+				createOutputWindow(result);
+				
 			}
+			
+			
+			
 		}
 		
-		/* Subsample and Replication:
-		 * Shrink the photo by a factor of 8 then zoom in with
-		 * Replication Method.
-		 */
-		private void subsampleAndReplication() {
-			//int[][] imgArray = getImageArray(myImage);
-			//backupImage = shrinkImg(imgArray);
-			//backupImage = zoomByReplication(backupImage);
-		}
-		 
-		/* Get Image Array: 
-		 * Gets the values of a MarvinImage and puts it into a 2d array
-		 * with a gray scale value for each pixel.
-		 * @param inputImage - a MarvinImage object that represents your input image
-		 * @return the 2d array that contains the images' gray scale pixel values
-		 */
-		private int[][] getImageArray(MarvinImage inputImage) {
-			
-			// Create the 2d array
-			int width = inputImage.getWidth();
-			int height = inputImage.getHeight();
-			int[][] tmp = new int[height][width];			
-			
-			// Process each gray scale pixel value
-			for(int y = 0; y < height; y++) {
-				for(int x = 0; x < width; x++) {
-					tmp[y][x] = inputImage.getIntComponent0(x,y);
-				}
-			}
-			return tmp;
-		}
-
-		/**
-		 * Transforms a large 2d array and shrinks it by a factor of 8.
-		 * @param origImgArray
-		 * @return
-		 */
-		private MarvinImage shrinkImg(int[][] origImgArray)
-		{
-			// New dimensions for the smaller image
-			int width = origImgArray[0].length/8;
-			int height = origImgArray.length/8;
-			
-			// Temporary small array
-			int[][] tmp = new int[height][width];
-			
-			// Redeem pixel value and place it into new smaller array
-			for(int y = 0; y < height; y++){
-				for(int x = 0; x < width; x++){
-					tmp[y][x] = origImgArray[y*8][x*8];
-				}
-			}
-			MarvinImage imageObject = makeIntoImage(tmp);
-			return imageObject;
-		}
-		
-		/**
-		 * Turns a 2d array into a MarvinImage Object
-		 * @param array
-		 * @return
-		 */
-		private MarvinImage makeIntoImage(int[][] array)	{
-			int width = array[0].length;
-			int height = array.length;
-			MarvinImage smallerImage = new MarvinImage(width, height);
-			
-			for(int rows = 0; rows < height; rows++) {
-				for(int cols = 0; cols < width; cols++) {
-					int grayValue = array[rows][cols];
-					smallerImage.setIntColor(cols, rows, grayValue, grayValue, grayValue);
-				}
-			}
-			return smallerImage;
-		}		
 	}
 	
 	/* Pretty Print:
@@ -278,26 +220,24 @@ public class ImagingGUI extends JFrame {
 	 * The GUI for displaying an image.
 	 * @param myImage
 	 */
-	private void createOutputWindow(MarvinImage myImage)
+	private void createOutputWindow(BufferedImage myImage)
 	{
 		/* Create a new window */
 		JFrame displayInputImage = new JFrame("Output");
 		
 		/* Create a new image panel */
-		MarvinImagePanel imagePanel = new MarvinImagePanel();
+		JPanel imagePanel = new JPanel();
+
+		/* Load display image as an icon */
+		ImageIcon inputImage = new ImageIcon(myImage);
 		
-		/* Add image panel into the window */
+		/* Add icon to image panel as a JLabel */
+		imagePanel.add(new JLabel(inputImage));
+		
 		displayInputImage.add(imagePanel);
-		
-		/* Add to image panel */
-		imagePanel.setImage(myImage);
-		
-		/* Retrieve image width and height for new window size */
-		int imageWidth = myImage.getWidth();
-		int imageHeight = myImage.getHeight();
+		displayInputImage.pack();
 		
 		/* Input Image Window Setup */
-		displayInputImage.setSize(imageWidth, imageHeight);
 		displayInputImage.setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
