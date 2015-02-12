@@ -7,8 +7,8 @@ import java.util.Collections;
 
 public class ImageProcessor {
 	
-	static int n;
-	static int bdr;
+	static int n, m;
+	static int bdr, nbdr, mbdr;
 	static int imageHeight;
 	static int imageWidth;
 	static BufferedImage image, backup;
@@ -24,6 +24,29 @@ public class ImageProcessor {
 	public void setFilterSize(int filterSize) {
 		n = filterSize;
 		bdr = n/2;
+	}
+	
+	public void setResolution(int height, int width) {
+		// n = height
+		// m = width
+		n = height; nbdr = n/2;
+		m = width; mbdr = m/2;
+	}
+	
+	public BufferedImage arithmeticMeanFilter(int height, int width) {
+		
+		System.out.println("Arithmetic mean filter in progress...");
+		setResolution(height, width);
+		int resultHeight = imageHeight+(nbdr*2);
+		int resultWidth = imageWidth+(mbdr*2);
+		BufferedImage result = new BufferedImage(resultWidth, resultHeight, BufferedImage.TYPE_BYTE_GRAY);
+		
+		result = zeroImagePadding(result);
+		result = addReflectivePadding(result);
+		result = smoothAndCrop(result);
+		
+		
+		return null;
 	}
 	
 	private static BufferedImage smoothAndCrop(BufferedImage result) {

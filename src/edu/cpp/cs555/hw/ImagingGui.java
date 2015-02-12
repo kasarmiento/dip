@@ -364,9 +364,18 @@ public class ImagingGui extends JFrame {
 				/*1*/"Smoothing Filter",
 				/*2*/"Median Filter",
 				/*3*/"Sharpening Laplacian filter",
-				/*4*/"High-boosting filter",
+				/*4*/"High-boosting Filter",
 				/*5*/"================ Bit-Masking ===============",
-				/*6*/"Bit Mask"};
+				/*6*/"Bit Mask",
+				/*7*/"=========== Restoration Filters ============",
+				/*8*/"Arithmetic Mean Filter",
+				/*9*/"Geometric Mean Filter",
+			    /*10*/"Harmonic Mean Filter",
+			    /*11*/"Contraharmonic Mean Filter",
+			    /*12*/"Max Filter",
+			    /*13*/"Min Filter",
+			    /*14*/"Midpoint Filter",
+			    /*15*/"Alpha-trimmed Mean Filter"};
 		JComboBox comboBox = new JComboBox(options);
 		comboBox.setBounds(12, 123, 323, 22);
 		contentPane.add(comboBox);
@@ -422,6 +431,39 @@ public class ImagingGui extends JFrame {
 							result = ip.bitMask(range, a, b);
 						}
 						createOutputWindow(result);
+						break;
+					}
+					case 7: { // no action
+						break;
+					}
+					case 8: { // arithmetic mean filter
+						String resolution = JOptionPane.showInputDialog(null, "Please enter the resolution of your mask (ex: 3x3)");
+						String[] dim = resolution.split("x");
+						int height = Integer.parseInt(dim[1]);
+						int width = Integer.parseInt(dim[0]);
+						result = ip.arithmeticMeanFilter(height, width);
+						createOutputWindow(result);
+						break;
+					}
+					case 9: { // geometric mean filter
+						break;
+					}
+					case 10: { // harmonic mean filter
+						break;
+					}
+					case 11: { // contraharmonic mean filter
+						break;
+					}
+					case 12: { // max filter
+						break;
+					}
+					case 13: { // min filter
+						break;
+					}
+					case 14: { // midpoint filter
+						break;
+					}
+					case 15: { // alpha-trimmed mean filter
 						break;
 					}
 					default: {
