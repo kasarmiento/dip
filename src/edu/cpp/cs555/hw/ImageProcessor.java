@@ -62,11 +62,9 @@ public class ImageProcessor {
 	}
 	
 	private static BufferedImage medianAndCrop(BufferedImage result) {
-		
 		int ii = 0;
 		int jj = 0;
 		BufferedImage newResult = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_BYTE_GRAY);
-		
 		int resultHeight = result.getHeight();
 		int resultWidth = result.getWidth();
 		
@@ -82,7 +80,6 @@ public class ImageProcessor {
 						neighbors.add(getGrayValue(result.getRGB(q, p)));
 					}
 				}
-				
 				Collections.sort(neighbors);
 				mid = neighbors.size() / 2;  // mid = the index of the arraylist that contains the rgb value
 				mid = neighbors.get(mid); // mid = the gray value in the middle of the neighbors
@@ -94,7 +91,6 @@ public class ImageProcessor {
 			ii++;
 			jj=0;
 		}
-		
 		return newResult;
 	}
 	
@@ -102,7 +98,6 @@ public class ImageProcessor {
 		int resultHeight = result.getHeight();
 		int resultWidth = result.getWidth();
 		int imageRGB;
-		
 		///// top-left corner
 		int ii = bdr-1;
 		int jj = bdr-1;
@@ -115,7 +110,6 @@ public class ImageProcessor {
 			ii--;
 			jj=bdr-1;
 		}
-		
 		///// top-center
 		ii = bdr-1;
 		jj = 0;
@@ -128,7 +122,6 @@ public class ImageProcessor {
 			ii--;
 			jj=0;
 		}
-		
 		///// top-right corner
 		ii = bdr-1;
 		jj = imageWidth-1;
@@ -141,7 +134,6 @@ public class ImageProcessor {
 			ii--;
 			jj = imageWidth-1;
 		}
-		
 		///// left edge
 		ii = 0;
 		jj = bdr-1;
@@ -154,7 +146,6 @@ public class ImageProcessor {
 			ii++;
 			jj=bdr-1;
 		}
-		
 		///// bottom-left corner
 		ii = imageHeight-1;
 		jj = bdr-1;
@@ -167,7 +158,6 @@ public class ImageProcessor {
 			ii--;
 			jj = bdr-1;
 		}
-		
 		///// bottom-center
 		ii = imageHeight-1;
 		jj = 0;
@@ -180,7 +170,6 @@ public class ImageProcessor {
 			ii--;
 			jj=0;
 		}
-		
 		///// right edge
 		ii = 0;
 		jj = imageWidth-1;
@@ -193,7 +182,6 @@ public class ImageProcessor {
 			ii++;
 			jj=imageWidth-1;
 		}
-		
 		///// bottom-right corner
 		ii = imageHeight-1;
 		jj = imageWidth-1;
@@ -287,6 +275,50 @@ public class ImageProcessor {
 		return newResult;
 	}
 	
+	public BufferedImage bitMask(boolean range, int a, int b) {
+		BufferedImage newResult = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_BYTE_GRAY);
+		if(range == true) { // from a to b 
+			System.out.println("Bit mask for bit plane from " + a + " to " + b + " in progress...");
+			for(int i = 0; i < imageHeight; i++) {
+				for(int j = 0; j < imageWidth; j++) {
+					int rgb = getGrayValue(image.getRGB(j,i));
+					for(int c = b; c >= a; c--) {
+						c = getBitValue(c);
+						if(rgb >= c) rgb = rgb - c;	
+					}
+					rgb = getRGBValue(rgb);
+					newResult.setRGB(j,i,rgb);
+				}
+			}
+		}
+		else {
+			System.out.println("Bit mask for bit plane " + a + " in progress...");
+			for(int i = 0; i < imageHeight; i++) {
+				for(int j = 0; j < imageWidth; j++) {
+					int rgb = image.getRGB(j,i);
+					rgb = getGrayValue(rgb);
+					a = getBitValue(a);
+					if(rgb >= a) a = rgb - a;
+					a = getRGBValue(a);
+					newResult.setRGB(j,i,a);
+				}
+			}
+		}
+		return newResult;
+	}
+	
+	private static int getBitValue(int a) {
+		if (a == 0) return 1;
+		else if (a == 1) return 2;
+		else if (a == 2) return 4;
+		else if (a == 3) return 8;
+		else if (a == 4) return 18;
+		else if (a == 5) return 32;
+		else if (a == 6) return 64;
+		else if (a == 7) return 128;
+		else return 0;
+	}
+	
 	public BufferedImage laplacianFilter() {
 		System.out.println("Laplacian filter in progress...");
 		setFilterSize(3);
@@ -319,8 +351,8 @@ public class ImageProcessor {
 		return result;
 	}
 	
-	private static BufferedImage copyImage(BufferedImage toCopy, BufferedImage result) {if (toCopy.getHeight() == result.getHeight() && toCopy.getWidth() == result.getWidth()) {
-			System.out.println("Images are the same height!");
+	private static BufferedImage copyImage(BufferedImage toCopy, BufferedImage result) {
+		if (toCopy.getHeight() == result.getHeight() && toCopy.getWidth() == result.getWidth()) {
 			int height = toCopy.getHeight();
 			int width = toCopy.getWidth();
 			
@@ -340,7 +372,6 @@ public class ImageProcessor {
 	private static BufferedImage addImages(BufferedImage image1, BufferedImage image2) {
 		
 		if (image1.getHeight() == image2.getHeight() && image1.getWidth() == image2.getWidth()) {
-			System.out.println("Images are the same height!");
 			int height = image1.getHeight();
 			int width = image1.getWidth();
 			BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
@@ -370,29 +401,20 @@ public class ImageProcessor {
 	}
 	
 	private static BufferedImage multiplyImageByConstant(BufferedImage result, int A) {
-		
 		int height = result.getHeight();
 		int width = result.getWidth();
-		
 		int value = 0;
 		
 		for(int i = 0; i < height; i++) {
 			for(int j = 0; j < width; j++) {
-				
 				value = getGrayValue(result.getRGB(j, i));
 				value = value * (A-1);
 				value = getRGBValue(value);
 				result.setRGB(j, i, value);
-				
 			}
 		}
-		
 		return result;
 	}
-	
-	
-	
-	
 	
 	private static int getGrayValue(int rgb) {
 		Color c = new Color(rgb);

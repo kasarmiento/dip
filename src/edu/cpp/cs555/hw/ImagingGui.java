@@ -364,7 +364,9 @@ public class ImagingGui extends JFrame {
 				/*1*/"Smoothing Filter",
 				/*2*/"Median Filter",
 				/*3*/"Sharpening Laplacian filter",
-				/*4*/"High-boosting filter"};
+				/*4*/"High-boosting filter",
+				/*5*/"================ Bit-Masking ===============",
+				/*6*/"Bit Mask"};
 		JComboBox comboBox = new JComboBox(options);
 		comboBox.setBounds(12, 123, 323, 22);
 		contentPane.add(comboBox);
@@ -401,6 +403,24 @@ public class ImagingGui extends JFrame {
 					case 4: { // high-boost filter
 						String A = JOptionPane.showInputDialog(null, "Please enter a value for coefficient A (A >= 1)");
 						result = ip.highboostFilter(Integer.parseInt(A));
+						createOutputWindow(result);
+						break;
+					}
+					case 5: { // no action
+						break;
+					}
+					case 6: { // bit-plane masking
+						String value = JOptionPane.showInputDialog(null, "Please enter a value or a range of bit-planes to mask (Format: '5' or '0-4', cannot exceed 7)");
+						boolean range = false;
+						if(value.length() == 1) { // if the value inputed is only one bit-plane
+							result = ip.bitMask(range, Integer.parseInt(value), 99);
+						}
+						else {
+							int a = Integer.parseInt(value.substring(0,1));
+							int b = Integer.parseInt(value.substring(2));
+							range = true;
+							result = ip.bitMask(range, a, b);
+						}
 						createOutputWindow(result);
 						break;
 					}
