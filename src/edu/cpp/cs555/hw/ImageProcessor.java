@@ -23,55 +23,113 @@ public class ImageProcessor {
 	
 	public void setFilterSize(int filterSize) {
 		n = filterSize;
+		m = filterSize;
 		bdr = n/2;
+		nbdr = n/2;
+		mbdr = m/2;
 	}
 	
 	public void setResolution(int height, int width) {
-		// n = height
-		// m = width
-		n = height; nbdr = n/2;
-		m = width; mbdr = m/2;
+		n = height;
+		m = width; 
+		nbdr = n/2;
+		mbdr = m/2;
 	}
 	
-	public BufferedImage arithmeticMeanFilter(int height, int width) {
-		
+	public BufferedImage arithmeticMeanFilter(int resh, int resw) {
 		System.out.println("Arithmetic mean filter in progress...");
-		setResolution(height, width);
+		setResolution(resh, resw);
 		int resultHeight = imageHeight+(nbdr*2);
 		int resultWidth = imageWidth+(mbdr*2);
 		BufferedImage result = new BufferedImage(resultWidth, resultHeight, BufferedImage.TYPE_BYTE_GRAY);
-		
 		result = zeroImagePadding(result);
 		result = addReflectivePadding(result);
 		result = smoothAndCrop(result);
-		
-		
-		return null;
+		return result;
+	}
+	
+	public BufferedImage geometricMeanFilter(int resh, int resw) {
+		System.out.println("Geometric mean filter in progress...");
+		setResolution(resh, resw);
+		int resultHeight = imageHeight+(nbdr*2);
+		int resultWidth = imageWidth+(mbdr*2);
+		BufferedImage result = new BufferedImage(resultWidth, resultHeight, BufferedImage.TYPE_BYTE_GRAY);
+		result = zeroImagePadding(result);
+		result = addReflectivePadding(result);
+		result = multiplyAndCrop(result);
+		return result;
+	}
+	
+	/** From writing this I learned that Math.pow works really poorly with 
+	 * datatypes other than doubles */
+	private static BufferedImage multiplyAndCrop(BufferedImage result) {
+		int ii = 0;
+		int jj = 0;
+		double product = 1;
+		double pwr = 1;
+		int pwrRound = 1;
+		int resultHeight = result.getHeight();
+		int resultWidth = result.getWidth();
+		BufferedImage newResult = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_BYTE_GRAY);
+		for(int i = nbdr; i < resultHeight-nbdr; i++) {
+			for(int j = mbdr; j < resultWidth-mbdr; j++) {
+				
+				// for each pixel, apply this filter:
+				for(int p = i-nbdr; p <= i+nbdr; p++) {
+					for(int q = j-mbdr; q <= j+mbdr; q++) {
+						product *= getGrayValue(result.getRGB(q, p));
+					}
+				}
+				double divisor = m*n;
+				pwr = Math.pow(product, (1/(divisor)));
+				pwrRound = (int) pwr;
+				pwrRound = getRGBValue(pwrRound);
+				newResult.setRGB(jj, ii, pwrRound);
+				jj++;
+				product = 1;	
+				
+				
+			}
+			ii++;
+			jj=0;
+		}
+		return newResult;
+	}
+	
+	private static BufferedImage zeroImagePadding(BufferedImage result) {
+		int ii = 0;
+		int jj = 0;
+		int resultHeight = result.getHeight();
+		int resultWidth = result.getWidth();
+		for(int i = nbdr; i < resultHeight-nbdr; i++) {
+			for(int j = mbdr; j < resultWidth-mbdr; j++) {
+				int imageRGB = image.getRGB(jj, ii);
+				result.setRGB(j, i, imageRGB);
+				jj++;
+			}
+			ii++;
+			jj=0;
+		}
+		return result;
 	}
 	
 	private static BufferedImage smoothAndCrop(BufferedImage result) {
-		
 		int ii = 0;
 		int jj = 0;
-		BufferedImage newResult = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_BYTE_GRAY);
-		
 		int sum = 0;
 		int avg = 0;
-		
 		int resultHeight = result.getHeight();
 		int resultWidth = result.getWidth();
-		
-		for(int i = bdr; i < resultHeight-bdr; i++) {
-			for(int j = bdr; j < resultWidth-bdr; j++) {
-				
+		BufferedImage newResult = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_BYTE_GRAY);
+		for(int i = nbdr; i < resultHeight-nbdr; i++) {
+			for(int j = mbdr; j < resultWidth-mbdr; j++) {
 				// for each pixel, apply this filter:
-				for(int p = i-bdr; p <= i+bdr; p++) {
-					for(int q = j-bdr; q <= j+bdr; q++) {
+				for(int p = i-nbdr; p <= i+nbdr; p++) {
+					for(int q = j-mbdr; q <= j+mbdr; q++) {
 						sum += getGrayValue(result.getRGB(q, p));
 					}
 				}
-				
-				avg = sum / (n*n);
+				avg = sum / (n*m);
 				avg = getRGBValue(avg);
 				newResult.setRGB(jj, ii, avg);
 				jj++;
@@ -80,7 +138,46 @@ public class ImageProcessor {
 			ii++;
 			jj=0;
 		}
-		
+		return newResult;
+	}
+	
+	private static BufferedImage coloredSmoothAndCrop(BufferedImage result) {
+		int ii = 0;
+		int jj = 0;
+		int rsum = 0;
+		int gsum = 0;
+		int bsum = 0;
+		int ravg = 0;
+		int gavg = 0;
+		int bavg = 0;
+		int xxx = 0;
+		int resultHeight = result.getHeight();
+		int resultWidth = result.getWidth();
+		BufferedImage newResult = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+		for(int i = nbdr; i < resultHeight-nbdr; i++) {
+			for(int j = mbdr; j < resultWidth-mbdr; j++) {
+				// for each pixel, apply this filter:
+				for(int p = i-nbdr; p <= i+nbdr; p++) {
+					for(int q = j-mbdr; q <= j+mbdr; q++) {
+						rsum += getRed(result.getRGB(q, p));
+						gsum += getGreen(result.getRGB(q, p));
+						bsum += getBlue(result.getRGB(q, p));
+					}
+				}
+				ravg = rsum / (n*m);
+				gavg = gsum / (n*m);
+				bavg = bsum / (n*m);
+				
+				xxx = getRGBValue(ravg,gavg,bavg);
+				newResult.setRGB(jj, ii, xxx);
+				jj++;
+				rsum = 0;
+				gsum = 0;
+				bsum = 0;
+			}
+			ii++;
+			jj=0;
+		}
 		return newResult;
 	}
 	
@@ -122,22 +219,22 @@ public class ImageProcessor {
 		int resultWidth = result.getWidth();
 		int imageRGB;
 		///// top-left corner
-		int ii = bdr-1;
-		int jj = bdr-1;
-		for(int i = 0; i < bdr; i++) {
-			for(int j = 0; j < bdr; j++) {
+		int ii = nbdr-1;
+		int jj = mbdr-1;
+		for(int i = 0; i < nbdr; i++) {
+			for(int j = 0; j < mbdr; j++) {
 				imageRGB = image.getRGB(jj,ii);
 				result.setRGB(j, i, imageRGB);
 				jj--;
 			}
 			ii--;
-			jj=bdr-1;
+			jj=mbdr-1;
 		}
 		///// top-center
-		ii = bdr-1;
+		ii = nbdr-1;
 		jj = 0;
-		for(int i = 0; i < bdr; i++) {
-			for(int j = bdr; j < resultWidth-bdr; j++) {
+		for(int i = 0; i < nbdr; i++) {
+			for(int j = mbdr; j < resultWidth-mbdr; j++) {
 				imageRGB = image.getRGB(jj,ii);
 				result.setRGB(j, i, imageRGB);
 				jj++;
@@ -146,10 +243,10 @@ public class ImageProcessor {
 			jj=0;
 		}
 		///// top-right corner
-		ii = bdr-1;
+		ii = nbdr-1;
 		jj = imageWidth-1;
-		for(int i = 0; i < bdr; i++) {
-			for(int j = resultWidth-bdr; j < resultWidth; j++) {
+		for(int i = 0; i < nbdr; i++) {
+			for(int j = resultWidth-mbdr; j < resultWidth; j++) {
 				imageRGB = image.getRGB(jj,ii);
 				result.setRGB(j, i, imageRGB);
 				jj--;
@@ -159,33 +256,33 @@ public class ImageProcessor {
 		}
 		///// left edge
 		ii = 0;
-		jj = bdr-1;
-		for(int i = bdr; i < resultHeight-bdr; i++) {
-			for(int j = 0; j < bdr; j++) {
+		jj = mbdr-1;
+		for(int i = nbdr; i < resultHeight-nbdr; i++) {
+			for(int j = 0; j < mbdr; j++) {
 				imageRGB = image.getRGB(jj,ii);
 				result.setRGB(j, i, imageRGB);
 				jj--;
 			}
 			ii++;
-			jj=bdr-1;
+			jj=mbdr-1;
 		}
 		///// bottom-left corner
 		ii = imageHeight-1;
-		jj = bdr-1;
-		for(int i = resultHeight-bdr; i < resultHeight; i++) {
-			for(int j = 0; j < bdr; j++) {
+		jj = mbdr-1;
+		for(int i = resultHeight-nbdr; i < resultHeight; i++) {
+			for(int j = 0; j < mbdr; j++) {
 				imageRGB = image.getRGB(jj,ii);
 				result.setRGB(j, i, imageRGB);
 				jj--;
 			}
 			ii--;
-			jj = bdr-1;
+			jj = mbdr-1;
 		}
 		///// bottom-center
 		ii = imageHeight-1;
 		jj = 0;
-		for(int i = resultHeight-bdr; i < resultHeight; i++) {
-			for(int j = bdr; j < resultWidth-bdr; j++) {
+		for(int i = resultHeight-nbdr; i < resultHeight; i++) {
+			for(int j = mbdr; j < resultWidth-mbdr; j++) {
 				imageRGB = image.getRGB(jj,ii);
 				result.setRGB(j, i, imageRGB);
 				jj++;
@@ -196,8 +293,8 @@ public class ImageProcessor {
 		///// right edge
 		ii = 0;
 		jj = imageWidth-1;
-		for(int i = bdr; i < resultHeight-bdr; i++) {
-			for(int j = resultWidth-bdr; j < resultWidth; j++) {
+		for(int i = nbdr; i < resultHeight-nbdr; i++) {
+			for(int j = resultWidth-mbdr; j < resultWidth; j++) {
 				imageRGB = image.getRGB(jj,ii);
 				result.setRGB(j, i, imageRGB);
 				jj--;
@@ -208,31 +305,14 @@ public class ImageProcessor {
 		///// bottom-right corner
 		ii = imageHeight-1;
 		jj = imageWidth-1;
-		for(int i = resultHeight-bdr; i < resultHeight; i++) {
-			for(int j = resultWidth-bdr; j < resultWidth; j++) {
+		for(int i = resultHeight-nbdr; i < resultHeight; i++) {
+			for(int j = resultWidth-mbdr; j < resultWidth; j++) {
 				imageRGB = image.getRGB(jj,ii);
 				result.setRGB(j, i, imageRGB);
 				jj--;
 			}
 			ii--;
 			jj = imageWidth-1;
-		}
-		return result;
-	}
-	
-	private static BufferedImage zeroImagePadding(BufferedImage result) {
-		int ii = 0;
-		int jj = 0;
-		int resultHeight = result.getHeight();
-		int resultWidth = result.getWidth();
-		for(int i = bdr; i < resultHeight-bdr; i++) {
-			for(int j = bdr; j < resultWidth-bdr; j++) {
-				int imageRGB = image.getRGB(jj, ii);
-				result.setRGB(j, i, imageRGB);
-				jj++;
-			}
-			ii++;
-			jj=0;
 		}
 		return result;
 	}
@@ -247,6 +327,19 @@ public class ImageProcessor {
 		result = zeroImagePadding(result);
 		result = addReflectivePadding(result);
 		result = smoothAndCrop(result);
+		return result;
+	}
+	
+	public BufferedImage coloredSmoothingFilter(int filterSize) {
+		System.out.println("Colored moothing filter in progress...");
+		setFilterSize(filterSize);
+		int resultHeight = imageHeight+(bdr*2);
+		int resultWidth = imageWidth+(bdr*2);
+		BufferedImage result = new BufferedImage(resultWidth, resultHeight, BufferedImage.TYPE_INT_RGB);
+		
+		result = zeroImagePadding(result);
+		result = addReflectivePadding(result);
+		result = coloredSmoothAndCrop(result);
 		return result;
 	}
 	
@@ -443,6 +536,32 @@ public class ImageProcessor {
 		Color c = new Color(rgb);
 		int gray = c.getRed();
 		return gray;
+	}
+	
+	private static int getRed(int rgb) {
+		Color c = new Color(rgb);
+		int red = c.getRed();
+		return red;
+	}
+	
+	private static int getGreen(int rgb) {
+		Color c = new Color(rgb);
+		int green = c.getGreen();
+		return green;
+	}
+	
+	private static int getBlue(int rgb) {
+		Color c = new Color(rgb);
+		int blue = c.getBlue();
+		return blue;
+	}
+	
+	private static int getRGBValue(int red, int green, int blue) {
+		int r = red;
+		int g = green;
+		int b = blue;
+		int col = (r << 16) | (g << 8) | b;
+		return col;
 	}
 	
 	private static int getRGBValue(int gray) {

@@ -298,7 +298,7 @@ public class ImagingGui extends JFrame {
 			            file.getName());
 			    	lblNoFileSelected.setText(file.getName());
 			    	myImage = loadColorImage(file);
-			    	myImage = convert2Gray(myImage);
+			    	///////myImage = convert2Gray(myImage);
 			    }
 			 
 			}
@@ -375,7 +375,9 @@ public class ImagingGui extends JFrame {
 			    /*12*/"Max Filter",
 			    /*13*/"Min Filter",
 			    /*14*/"Midpoint Filter",
-			    /*15*/"Alpha-trimmed Mean Filter"};
+			    /*15*/"Alpha-trimmed Mean Filter",
+			    /*16*/"=============== Color Filters ==============",
+				/*17*/"Color Smoothing Filter",};
 		JComboBox comboBox = new JComboBox(options);
 		comboBox.setBounds(12, 123, 323, 22);
 		contentPane.add(comboBox);
@@ -446,6 +448,12 @@ public class ImagingGui extends JFrame {
 						break;
 					}
 					case 9: { // geometric mean filter
+						String resolution = JOptionPane.showInputDialog(null, "Please enter the resolution of your mask (ex: 3x3)");
+						String[] dim = resolution.split("x");
+						int height = Integer.parseInt(dim[1]);
+						int width = Integer.parseInt(dim[0]);
+						result = ip.geometricMeanFilter(height, width);
+						createOutputWindow(result);
 						break;
 					}
 					case 10: { // harmonic mean filter
@@ -464,6 +472,15 @@ public class ImagingGui extends JFrame {
 						break;
 					}
 					case 15: { // alpha-trimmed mean filter
+						break;
+					}
+					case 16: { 
+						break;
+					}
+					case 17: { // color smooth and crop
+						String filterSize = JOptionPane.showInputDialog(null, "Please enter the size of your filter (odd numbers only)");
+						result = ip.coloredSmoothingFilter(Integer.parseInt(filterSize));
+						createOutputWindow(result);
 						break;
 					}
 					default: {
