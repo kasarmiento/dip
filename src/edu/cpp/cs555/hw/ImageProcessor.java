@@ -51,14 +51,62 @@ public class ImageProcessor {
 	public BufferedImage geometricMeanFilter(int resh, int resw) {
 		System.out.println("Geometric mean filter in progress...");
 		setResolution(resh, resw);
+		
 		int resultHeight = imageHeight+(nbdr*2);
 		int resultWidth = imageWidth+(mbdr*2);
 		BufferedImage result = new BufferedImage(resultWidth, resultHeight, BufferedImage.TYPE_BYTE_GRAY);
+		
 		result = zeroImagePadding(result);
 		result = addReflectivePadding(result);
 		result = multiplyAndCrop(result);
 		return result;
 	}
+
+	public BufferedImage harmonicMeanFilter(int resh, int resw) {
+		System.out.println("Harmonic mean filter in progress...");
+		setResolution(resh, resw);
+		
+		int resultHeight = imageHeight+(nbdr*2);
+		int resultWidth = imageWidth+(mbdr*2);
+		BufferedImage result = new BufferedImage(resultWidth, resultHeight, BufferedImage.TYPE_BYTE_GRAY);
+		
+		result = zeroImagePadding(result);
+		result = addReflectivePadding(result);
+		result = harmonizeAndCrop(result);
+		return result;
+	}
+	
+	private static BufferedImage harmonizeAndCrop(BufferedImage result) {
+		int ii = 0;
+		int jj = 0;
+		double divisorSum = 0;
+		int round = 0;
+		int resultHeight = result.getHeight();
+		int resultWidth = result.getWidth();
+		BufferedImage newResult = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_BYTE_GRAY);
+		for(int i = nbdr; i < resultHeight-nbdr; i++) {
+			for(int j = mbdr; j < resultWidth-mbdr; j++) {
+				
+				// for each pixel, apply this filter:
+				for(int p = i-nbdr; p <= i+nbdr; p++) {
+					for(int q = j-mbdr; q <= j+mbdr; q++) {
+						divisorSum += 1 / getGrayValueD(result.getRGB(q, p));
+					}
+				}
+				double quotient = (m*n) / divisorSum;
+				round = (int) quotient;
+				round = getRGBValue(round);
+				newResult.setRGB(jj, ii, round);
+				jj++;
+				divisorSum = 0;	
+			}
+			ii++;
+			jj=0;
+		}
+		return newResult;
+	}
+	
+	
 	
 	/** From writing this I learned that Math.pow works really poorly with 
 	 * datatypes other than doubles */
@@ -87,8 +135,6 @@ public class ImageProcessor {
 				newResult.setRGB(jj, ii, pwrRound);
 				jj++;
 				product = 1;	
-				
-				
 			}
 			ii++;
 			jj=0;
@@ -535,6 +581,12 @@ public class ImageProcessor {
 	private static int getGrayValue(int rgb) {
 		Color c = new Color(rgb);
 		int gray = c.getRed();
+		return gray;
+	}
+	
+	private static double getGrayValueD(int rgb) {
+		Color c = new Color(rgb);
+		double gray = c.getRed();
 		return gray;
 	}
 	

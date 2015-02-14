@@ -457,6 +457,12 @@ public class ImagingGui extends JFrame {
 						break;
 					}
 					case 10: { // harmonic mean filter
+						String resolution = JOptionPane.showInputDialog(null, "Please enter the resolution of your mask (ex: 3x3)");
+						String[] dim = resolution.split("x");
+						int height = Integer.parseInt(dim[1]);
+						int width = Integer.parseInt(dim[0]);
+						result = ip.harmonicMeanFilter(height, width);
+						createOutputWindow(result);
 						break;
 					}
 					case 11: { // contraharmonic mean filter
