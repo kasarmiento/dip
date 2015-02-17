@@ -37,7 +37,7 @@ public class ImagingGui extends JFrame {
 
 	private JPanel contentPane;
 	private File file;
-	private BufferedImage myImage;
+	private BufferedImage myImage, bw;
 
 	/**
 	 * Launch the application.
@@ -52,200 +52,7 @@ public class ImagingGui extends JFrame {
 	
 	static int[][] image = new int[imageHeight][imageWidth];
 	
-	private static void populateArray() {
-		for(int i = 0; i < imageHeight; i++) { // up&down
-			for(int j = 0; j < imageWidth; j++) { // across
-				image[i][j] = (int) (Math.random()*10);
-			}
-		}
-	}
-	
-	private static void printArray(int[][] array) {
-		for(int i = 0; i < array.length; i++) {
-			for(int j = 0; j < array[0].length; j++) {
-				System.out.print(array[i][j] + " ");
-			}
-			System.out.println();
-		}
-	}
-	
-	private static void imagePadding(int[][] result) {
-		int ii = 0;
-		int jj = 0;
-		int resultHeight = result.length;
-		int resultWidth = result[0].length;
-		for(int i = bdr; i < resultHeight-bdr; i++) {
-			for(int j = bdr; j < resultWidth-bdr; j++) {
-				result[i][j] = image[ii][jj];
-				jj++;
-			}
-			ii++;
-			jj=0;
-		}
-	}
-	
-	private static void reflectPadding(int[][] result) {
-		int resultHeight = result.length;
-		int resultWidth = result[0].length;
-		
-		///// top-left corner
-		int ii = bdr-1;
-		int jj = bdr-1;
-		for(int i = 0; i < bdr; i++) {
-			for(int j = 0; j < bdr; j++) {
-				result[i][j] = image[ii][jj];
-				jj--;
-			}
-			ii--;
-			jj=bdr-1;
-		}
-		
-		///// top-center
-		ii = bdr-1;
-		jj = 0;
-		for(int i = 0; i < bdr; i++) {
-			for(int j = bdr; j < resultWidth-bdr; j++) {
-				result[i][j] = image[ii][jj];
-				jj++;
-			}
-			ii--;
-			jj=0;
-		}
-		
-		///// top-right corner
-		ii = bdr-1;
-		jj = imageWidth-1;
-		for(int i = 0; i < bdr; i++) {
-			for(int j = resultWidth-bdr; j < resultWidth; j++) {
-				result[i][j] = image[ii][jj];
-				jj--;
-			}
-			ii--;
-			jj = imageWidth-1;
-		}
-		
-		///// left edge
-		ii = 0;
-		jj = bdr-1;
-		for(int i = bdr; i < resultHeight-bdr; i++) {
-			for(int j = 0; j < bdr; j++) {
-				result[i][j] = image[ii][jj];
-				jj--;
-			}
-			ii++;
-			jj=bdr-1;
-		}
-		
-		///// bottom-left corner
-		ii = imageHeight-1;
-		jj = bdr-1;
-		for(int i = resultHeight-bdr; i < resultHeight; i++) {
-			for(int j = 0; j < bdr; j++) {
-				result[i][j] = image[ii][jj];
-				jj--;
-			}
-			ii--;
-			jj = bdr-1;
-		}
-		
-		///// bottom-center
-		ii = imageHeight-1;
-		jj = 0;
-		for(int i = resultHeight-bdr; i < resultHeight; i++) {
-			for(int j = bdr; j < resultWidth-bdr; j++) {
-				result[i][j] = image[ii][jj];
-				jj++;
-			}
-			ii--;
-			jj=0;
-		}
-		
-		///// right edge
-		ii = 0;
-		jj = imageWidth-1;
-		for(int i = bdr; i < resultHeight-bdr; i++) {
-			for(int j = resultWidth-bdr; j < resultWidth; j++) {
-				result[i][j] = image[ii][jj];
-				jj--;
-			}
-			ii++;
-			jj=imageWidth-1;
-		}
-		
-		///// bottom-right corner
-		ii = imageHeight-1;
-		jj = imageWidth-1;
-		for(int i = resultHeight-bdr; i < resultHeight; i++) {
-			for(int j = resultWidth-bdr; j < resultWidth; j++) {
-				result[i][j] = image[ii][jj];
-				jj--;
-			}
-			ii--;
-			jj = imageWidth-1;
-		}
-	}
-	
 	public static void main(String[] args) {
-		
-		/**
-		
-		populateArray();
-		printArray(image);
-		
-		int resultHeight = imageHeight+(bdr*2);
-		int resultWidth = imageWidth+(bdr*2);
-		
-		System.out.println();
-		 
-		int[][] result = new int[resultHeight][resultWidth];
-		imagePadding(result);
-		printArray(result);
-		
-		System.out.println();
-		System.out.println();
-		
-		reflectPadding(result);
-		System.out.println("Printing with reflective padding:");
-		printArray(result);
-		
-		System.out.println();
-		
-		int ii = 0;
-		int jj = 0;
-		int[][] newResult = new int[imageHeight][imageWidth];
-		
-		int sum = 0;
-		int avg = 0;
-		
-		for(int i = bdr; i < resultHeight-bdr; i++) {
-			for(int j = bdr; j < resultWidth-bdr; j++) {
-				
-				// for each pixel, apply this filter:
-				for(int p = i-bdr; p <= i+bdr; p++) {
-					for(int q = j-bdr; q <= j+bdr; q++) {
-						sum += result[p][q];
-					}
-				}
-				
-				avg = sum / (n*n);
-				newResult[ii][jj] = avg;
-				jj++;
-				sum = 0;				
-			}
-			ii++;
-			jj=0;
-		}
-
-		System.out.println("Printing to test inner area:");
-		printArray(newResult);
-		
-		*/
-		
-		
-		////////////////////////////////// t e s t   a r e a  //////////////////////////////////	
-		
-		
-		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -256,8 +63,6 @@ public class ImagingGui extends JFrame {
 				}
 			}
 		});
-		
-		
 	}
 
 	/**
@@ -298,7 +103,7 @@ public class ImagingGui extends JFrame {
 			            file.getName());
 			    	lblNoFileSelected.setText(file.getName());
 			    	myImage = loadColorImage(file);
-			    	///////myImage = convert2Gray(myImage);
+			    	myImage = convert2Gray(myImage);
 			    }
 			 
 			}
@@ -313,7 +118,6 @@ public class ImagingGui extends JFrame {
 				}
 				return grayImg;
 			}
-			
 			
 			/**
 			 * File IO for the image */
@@ -366,18 +170,21 @@ public class ImagingGui extends JFrame {
 				/*3*/"Sharpening Laplacian filter",
 				/*4*/"High-boosting Filter",
 				/*5*/"================ Bit-Masking ===============",
-				/*6*/"Bit Mask",
-				/*7*/"=========== Restoration Filters ============",
-				/*8*/"Arithmetic Mean Filter",
-				/*9*/"Geometric Mean Filter",
-			    /*10*/"Harmonic Mean Filter",
-			    /*11*/"Contraharmonic Mean Filter",
-			    /*12*/"Max Filter",
-			    /*13*/"Min Filter",
-			    /*14*/"Midpoint Filter",
-			    /*15*/"Alpha-trimmed Mean Filter",
-			    /*16*/"=============== Color Filters ==============",
-				/*17*/"Color Smoothing Filter",};
+				/*6*/"Mask Bits 1-4",
+				/*7*/"Mask Bits 3-6",
+				/*8*/"Mask Bits 5-8",
+				/*9*/"=========== Restoration Filters ============",
+				/*10*/"Arithmetic Mean Filter",
+				/*11*/"Geometric Mean Filter",
+			    /*12*/"Harmonic Mean Filter",
+			    /*13*/"Contraharmonic Mean Filter",
+			    /*14*/"Max Filter",
+			    /*15*/"Min Filter",
+			    /*16*/"Midpoint Filter",
+			    /*17*/"Alpha-trimmed Mean Filter",
+			    /*18*/"=============== Color Filters ==============",
+				/*19*/"Color Smoothing Filter",
+				/*20*/"Color Max Filter"};
 		JComboBox comboBox = new JComboBox(options);
 		comboBox.setBounds(12, 123, 323, 22);
 		contentPane.add(comboBox);
@@ -420,25 +227,26 @@ public class ImagingGui extends JFrame {
 					case 5: { // no action
 						break;
 					}
-					case 6: { // bit-plane masking
-						String value = JOptionPane.showInputDialog(null, "Please enter a value or a range of bit-planes to mask (Format: '5' or '0-4', cannot exceed 7)");
-						boolean range = false;
-						if(value.length() == 1) { // if the value inputed is only one bit-plane
-							result = ip.bitMask(range, Integer.parseInt(value), 99);
-						}
-						else {
-							int a = Integer.parseInt(value.substring(0,1));
-							int b = Integer.parseInt(value.substring(2));
-							range = true;
-							result = ip.bitMask(range, a, b);
-						}
+					case 6: { // bit-plane masking 1-4
+						result = ip.bitMask(1, 4);
 						createOutputWindow(result);
 						break;
 					}
-					case 7: { // no action
+					case 7: { // bit-plane masking 3-6
+						result = ip.bitMask(3, 6);
+						createOutputWindow(result);
 						break;
 					}
-					case 8: { // arithmetic mean filter
+					case 8: { // bit-plane masking 5-8
+						result = ip.bitMask(5, 8);
+						createOutputWindow(result);
+						break;
+					}
+					
+					case 9: { // no action
+						break;
+					}
+					case 10: { // arithmetic mean filter
 						String resolution = JOptionPane.showInputDialog(null, "Please enter the resolution of your mask (ex: 3x3)");
 						String[] dim = resolution.split("x");
 						int height = Integer.parseInt(dim[1]);
@@ -447,7 +255,7 @@ public class ImagingGui extends JFrame {
 						createOutputWindow(result);
 						break;
 					}
-					case 9: { // geometric mean filter
+					case 11: { // geometric mean filter
 						String resolution = JOptionPane.showInputDialog(null, "Please enter the resolution of your mask (ex: 3x3)");
 						String[] dim = resolution.split("x");
 						int height = Integer.parseInt(dim[1]);
@@ -456,7 +264,7 @@ public class ImagingGui extends JFrame {
 						createOutputWindow(result);
 						break;
 					}
-					case 10: { // harmonic mean filter
+					case 12: { // harmonic mean filter
 						String resolution = JOptionPane.showInputDialog(null, "Please enter the resolution of your mask (ex: 3x3)");
 						String[] dim = resolution.split("x");
 						int height = Integer.parseInt(dim[1]);
@@ -465,27 +273,54 @@ public class ImagingGui extends JFrame {
 						createOutputWindow(result);
 						break;
 					}
-					case 11: { // contraharmonic mean filter
+					case 13: { // contraharmonic mean filter
+						String resolution = JOptionPane.showInputDialog(null, "Please enter the resolution of your mask (ex: 3x3)");
+						String[] dim = resolution.split("x");
+						int height = Integer.parseInt(dim[1]);
+						int width = Integer.parseInt(dim[0]);
+						String q = JOptionPane.showInputDialog(null, "Please enter a value for Q");
+						double Q = Double.parseDouble(q);
+						result = ip.contraharmonicMeanFilter(Q, height, width);
+						createOutputWindow(result);
 						break;
 					}
-					case 12: { // max filter
+					case 14: { // max filter
+						String filterSize = JOptionPane.showInputDialog(null, "Please enter the size of your filter (odd numbers only)");
+						result = ip.maxFilter(Integer.parseInt(filterSize));
+						createOutputWindow(result);
 						break;
 					}
-					case 13: { // min filter
+					case 15: { // min filter
+						String filterSize = JOptionPane.showInputDialog(null, "Please enter the size of your filter (odd numbers only)");
+						result = ip.minFilter(Integer.parseInt(filterSize));
+						createOutputWindow(result);
 						break;
 					}
-					case 14: { // midpoint filter
+					case 16: { // midpoint filter
+						String filterSize = JOptionPane.showInputDialog(null, "Please enter the size of your filter (odd numbers only)");
+						result = ip.midpointFilter(Integer.parseInt(filterSize));
+						createOutputWindow(result);
 						break;
 					}
-					case 15: { // alpha-trimmed mean filter
+					case 17: { // alpha-trimmed mean filter
+						String filterSize = JOptionPane.showInputDialog(null, "Please enter the size of your filter (odd numbers only)");
+						String d = JOptionPane.showInputDialog(null, "Please enter a value for d (0 >= d >= " + imageWidth + "*" + imageHeight + "-1)");
+						result = ip.alphaFilter(Integer.parseInt(filterSize), Integer.parseInt(d));
+						createOutputWindow(result);
 						break;
 					}
-					case 16: { 
+					case 18: { 
 						break;
 					}
-					case 17: { // color smooth and crop
+					case 19: { // color smooth and crop
 						String filterSize = JOptionPane.showInputDialog(null, "Please enter the size of your filter (odd numbers only)");
 						result = ip.coloredSmoothingFilter(Integer.parseInt(filterSize));
+						createOutputWindow(result);
+						break;
+					}
+					case 20: { // color max filter
+						String filterSize = JOptionPane.showInputDialog(null, "Please enter the size of your filter (odd numbers only)");
+						result = ip.colorMaxFilter(Integer.parseInt(filterSize));
 						createOutputWindow(result);
 						break;
 					}
